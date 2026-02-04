@@ -1,0 +1,46 @@
+########################################
+# OS junk
+########################################
+.DS_Store
+Thumbs.db
+desktop.ini
+
+########################################
+# VS Code (local-only settings)
+########################################
+.vscode/
+*.code-workspace
+
+########################################
+# Temp / logs
+########################################
+*.log
+*.tmp
+*.bak
+*.swp
+
+########################################
+# Build / packaging outputs (common)
+########################################
+dist/
+build/
+out/
+release/
+packages/
+*.zip
+
+########################################
+# Node / Python (if you ever add tooling)
+########################################
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+########################################
+# Modding-specific “do not commit”
+# (put any extracted vanilla/reference stuff here)
+########################################
+vanilla/
+reference/
+extracted/

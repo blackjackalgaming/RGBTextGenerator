@@ -1,0 +1,34 @@
+########################################
+# Normalize line endings across systems
+########################################
+* text=auto
+
+########################################
+# Text files (explicit)
+########################################
+*.lua  text
+*.json text
+*.sjson text
+*.md   text
+*.txt  text
+*.toml text
+*.yaml text
+*.yml  text
+
+########################################
+# Binary assets (do not treat as text)
+########################################
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.gif  binary
+*.bmp  binary
+*.ico  binary
+
+*.wav  binary
+*.ogg  binary
+*.mp3  binary
+
+*.bik  binary
+*.bk2  binary
