@@ -38,6 +38,14 @@ __pycache__/
 .venv/
 
 ########################################
+# r2modman / BepInEx local stuff (often ends up in repos by accident)
+########################################
+BepInEx/
+doorstop_config.ini
+winhttp.dll
+changelog.txt
+
+########################################
 # Modding-specific “do not commit”
 # (put any extracted vanilla/reference stuff here)
 ########################################

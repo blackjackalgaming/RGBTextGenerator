@@ -1,4 +1,4 @@
----@meta BlackJackalGaming-RGBText
+---@meta blackjackalgamingfb-RGBTextGenerator
 local public = {}
 -- document whatever you made publicly available to other plugins here
 -- use luaCATS annotations and give descriptions where appropriate

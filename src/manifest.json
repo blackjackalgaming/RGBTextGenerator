@@ -1,6 +1,6 @@
 {
-    "namespace": "BlackJackalGaming",
-    "name": "RGBText",
+    "namespace": "blackjackalgamingfb",
+    "name": "RGBTextGenerator",
     "description": "Hades 2 Mod that allows for RGB colored text in various parts of the game.",
     "version_number": "0.0.1",
     "dependencies": [
@@ -11,6 +11,6 @@
         "SGG_Modding-SJSON-1.0.0",
         "SGG_Modding-ModUtil-4.0.1"
     ],
-    "website_url": "https://github.com/blackjackalgamingfb/RGBText",
-    "FullName": "BlackJackalGaming-RGBText"
+    "website_url": "https://github.com/blackjackalgamingfb/RGBTextGenerator",
+    "FullName": "blackjackalgamingfb-RGBTextGenerator"
 }

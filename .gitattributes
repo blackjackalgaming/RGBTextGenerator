@@ -1,10 +1,10 @@
 ########################################
-# Normalize line endings across systems
+# Normalize line endings (stops CRLF/LF pain)
 ########################################
 * text=auto
 
 ########################################
-# Text files (explicit)
+# Text files
 ########################################
 *.lua  text
 *.json text
@@ -16,7 +16,7 @@
 *.yml  text
 
 ########################################
-# Binary assets (do not treat as text)
+# Binary assets (do NOT diff or normalize)
 ########################################
 *.png  binary
 *.jpg  binary
@@ -32,3 +32,4 @@
 
 *.bik  binary
 *.bk2  binary
+

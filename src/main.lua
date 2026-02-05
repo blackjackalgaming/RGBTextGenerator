@@ -1,4 +1,4 @@
----@meta _
+---@meta blackjackalgamingfb-RGBTextGenerator
 ---@diagnostic disable-next-line: undefined-global
 local mods = rom.mods
 
@@ -29,7 +29,7 @@ config = chalk.auto 'config.lua'
 public.config = config
 
 local function on_ready()
-    if config.enabled == false then
+    if config.Enabled == false then
         return
     end
     mod = modutil.mod.Mod.Register(_PLUGIN.guid)
@@ -37,7 +37,7 @@ local function on_ready()
 end
 
 local function on_reload()
-    if config.enabled == false then
+    if config.Enabled == false then
         return
     end
     import 'reload.lua'
@@ -49,30 +49,33 @@ modutil.once_loaded.game(function()
     loader.load(on_ready, on_reload)
 end)
 
+-- ...existing code...
 mod.RGBText = {
-  Active = {},     -- [textId] = { t = <phase/time in radians>, speed =..., alpha=..., intensity=... }
+  Active = {}, -- [textId] = { phaseT = <phase/time in radians>, speed = ... , alpha = ... , intensity = ... }
   Running = false,
 }
 
-rgbtext = mod.RGBText
+local rgbtext = mod.RGBText
+local active = rgbtext.Active
+local twopi = math.pi * 2
 
-local function RGBClamp01(RGBIntensity)
-  if type(RGBIntensity) ~= "number" then RGBIntensity = tonumber(RGBIntensity) or 0 end
-  if RGBIntensity < 0 then return 0 end
-  if RGBIntensity > 1 then return 1 end
-  return RGBIntensity
+local function RGBClamp01(intensity)
+  if type(intensity) ~= "number" then intensity = tonumber(intensity) or 0 end
+  if intensity <= 0 then return 0 end
+  if intensity >= 1 then return 1 end
+  return intensity
 end
 
 -- Converts sin output (-1..1) -> (0..1), with optional intensity
 -- intensity ~ 0.35..0.5 recommended for UI readability
-local function SinTo01(scaleswing, RGBIntensity)
-    RGBIntensity = RGBClamp01(RGBIntensity)
+local function SinTo01(scaleswing, intensity)
+  intensity = RGBClamp01(intensity)
   -- center at 0.5, scale swing by intensity
-    return 0.5 + (RGBIntensity * scaleswing)
+  return 0.5 + (intensity * scaleswing)
 end
 
 -- Call this when you have a text box id.
-function RegisterRgbText( textId, RGBopts )
+function RegisterRgbText(textId, RGBopts)
     if not textId then
         return
     end
@@ -82,56 +85,57 @@ function RegisterRgbText( textId, RGBopts )
     end
 
     rgbtext.Active[textId] = {
-        phaseT = tonumber(RGBopts.phaseT) or 0.0,           -- initial phase/time (radians)
-        speed = tonumber(RGBopts.speed) or 0.8,             -- radians/sec (tuned)
-        alpha = tonumber(RGBopts.alpha) or 1.0,             -- opacity
-        intensity = tonumber(RGBopts.intensity) or 0.45,    -- 0.45 = vivid but readable
+        phaseT = tonumber(phaseT) or 0.0,        -- initial phase/time (radians)
+        speed = tonumber(speed) or 0.8,          -- radians/sec (tuned)
+        alpha = tonumber(alpha) or 1.0,          -- opacity
+        intensity = tonumber(intensity) or 0.45, -- 0.45 = vivid but readable
     }
 
+  if not rgbtext.Running then
+    rgbtext.Running = true
 
-    if not rgbtext.Running then
-        rgbtext.Running = true
+    thread(function()
+      local frameTime = 0.03
 
-        thread(function()
-            local RGBframeTime = 0.03
+      while rgbtext.Running == true do
+        local hasActiveEntries = false -- stop loop if no active ids
+        for _ in pairs(rgbtext.Active) do
+          hasActiveEntries = true
+          break
+        end
 
-            while rgbtext.Running == true do
-                local hasActiveEntries = false                -- stop loop if no active ids
-                for _ in pairs(rgbtext.Active) do hasActiveEntries = true 
-                    break
-                end
+        if not hasActiveEntries then
+          rgbtext.Running = false
+          break
+        end
 
-                if not hasActiveEntries then
-                    rgbtext.Running = false
-                end
+        for id, cfg in pairs(rgbtext.Active) do
+          -- advance phase
+          cfg.phaseT = cfg.phaseT + (cfg.speed * frameTime)
+          -- keep t bounded (tidy, not required)
+          if cfg.phaseT >= twopi then
+            cfg.phaseT = cfg.phaseT - twopi
+          end
 
-            for textId, rgbcfg in pairs(rgbtext.Active) do
-            -- advance phase
-                rgbcfg.phaseT = rgbcfg.phaseT + (rgbcfg.speed * RGBframeTime)
-            -- OPTIONAL: keep t bounded (tidy, not required)
-                if rgbcfg.phaseT >= twopi then
-                    rgbcfg.phaseT = rgbcfg.phaseT - twopi
-                end
+          -- sin-wave RGB with 120° phase offsets
+          local r = SinTo01(math.sin(cfg.phaseT), cfg.intensity)
+          local g = SinTo01(math.sin(cfg.phaseT + twopi / 3), cfg.intensity)
+          local b = SinTo01(math.sin(cfg.phaseT + (2 * twopi) / 3), cfg.intensity)
 
-                -- sin-wave RGB with 120° phase offsets
-                local r = SinTo01(math.sin(rgbcfg.phaseT),               rgbcfg.intensity)
-                local g = SinTo01(math.sin(rgbcfg.phaseT + twopi/3),     rgbcfg.intensity)
-                local b = SinTo01(math.sin(rgbcfg.phaseT + 2*twopi/3),   rgbcfg.intensity)
-
-                -- Apply (swap this for your real API if needed)
-                SetColor({ Id = textId, Color = { r, g, b, rgbcfg.alpha } })
-                end
-                wait(frameTime)
-            end
-        end)
-    end
+          -- Apply (swap this for your real API if needed)
+          SetColor({ Id = id, Color = { r, g, b, cfg.alpha } })
+        end
+        wait(frameTime)
+      end
+    end)
+  end
 end
+
 
 function UnregisterRgbText(textId)
     if not textId then 
         return
     end
-    RgbText.Active[textId] = nil
+    rgbtext.Active[textId] = nil
 end
 
-return RgbText
