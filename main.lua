@@ -49,12 +49,12 @@ modutil.once_loaded.game(function()
     loader.load(on_ready, on_reload)
 end)
 
-mod.RgbText = {
+mod.RGBText = {
   Active = {},     -- [textId] = { t = <phase/time in radians>, speed =..., alpha=..., intensity=... }
   Running = false,
 }
 
-
+rgbText = mod.RGBText
 
 local function Clamp01(RGBIntensity)
   if type(RGBIntensity) ~= "number" then RGBIntensity = tonumber(RGBIntensity) or 0 end
@@ -89,20 +89,20 @@ function RegisterRgbText( textId, RGBopts )
     }
 
 
-    if not RgbText.Running then
-        RgbText.Running = true
+    if not rgbText.Running then
+        rgbText.Running = true
 
         thread(function()
             local frameTime = 0.03
 
-            while RgbText.Running == true do
+            while rgbText.Running == true do
                 local hasActiveEntries = false                -- stop loop if no active ids
-                for _ in pairs(RgbText.Active) do hasActiveEntries = true 
+                for _ in pairs(rgbText.Active) do hasActiveEntries = true 
                     break
                 end
 
                 if not hasActiveEntries then
-                    RgbText.Running = false
+                    rgbText.Running = false
                 end
 
             for textId, rgbcfg in pairs(RgbText.Active) do
