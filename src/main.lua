@@ -50,12 +50,12 @@ modutil.once_loaded.game(function()
 end)
 
 -- ...existing code...
-mod.RGBText = {
+mod.RGBTextGenerator = {
   Active = {}, -- [textId] = { phaseT = <phase/time in radians>, speed = ... , alpha = ... , intensity = ... }
   Running = false,
 }
 
-local rgbtext = mod.RGBText
+local rgbtext = mod.RGBTextGenerator
 local active = rgbtext.Active
 local twopi = math.pi * 2
 
