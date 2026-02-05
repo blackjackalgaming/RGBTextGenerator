@@ -54,9 +54,9 @@ mod.RGBText = {
   Running = false,
 }
 
-rgbText = mod.RGBText
+rgbtext = mod.RGBText
 
-local function Clamp01(RGBIntensity)
+local function RGBClamp01(RGBIntensity)
   if type(RGBIntensity) ~= "number" then RGBIntensity = tonumber(RGBIntensity) or 0 end
   if RGBIntensity < 0 then return 0 end
   if RGBIntensity > 1 then return 1 end
@@ -66,7 +66,7 @@ end
 -- Converts sin output (-1..1) -> (0..1), with optional intensity
 -- intensity ~ 0.35..0.5 recommended for UI readability
 local function SinTo01(scaleswing, RGBIntensity)
-    RGBIntensity = Clamp01(RGBIntensity)
+    RGBIntensity = RGBClamp01(RGBIntensity)
   -- center at 0.5, scale swing by intensity
     return 0.5 + (RGBIntensity * scaleswing)
 end
@@ -81,7 +81,7 @@ function RegisterRgbText( textId, RGBopts )
         RGBopts = {}
     end
 
-    RgbText.Active[textId] = {
+    rgbtext.Active[textId] = {
         phaseT = tonumber(RGBopts.phaseT) or 0.0,           -- initial phase/time (radians)
         speed = tonumber(RGBopts.speed) or 0.8,             -- radians/sec (tuned)
         alpha = tonumber(RGBopts.alpha) or 1.0,             -- opacity
@@ -89,25 +89,25 @@ function RegisterRgbText( textId, RGBopts )
     }
 
 
-    if not rgbText.Running then
-        rgbText.Running = true
+    if not rgbtext.Running then
+        rgbtext.Running = true
 
         thread(function()
-            local frameTime = 0.03
+            local RGBframeTime = 0.03
 
-            while rgbText.Running == true do
+            while rgbtext.Running == true do
                 local hasActiveEntries = false                -- stop loop if no active ids
-                for _ in pairs(rgbText.Active) do hasActiveEntries = true 
+                for _ in pairs(rgbtext.Active) do hasActiveEntries = true 
                     break
                 end
 
                 if not hasActiveEntries then
-                    rgbText.Running = false
+                    rgbtext.Running = false
                 end
 
-            for textId, rgbcfg in pairs(RgbText.Active) do
+            for textId, rgbcfg in pairs(rgbtext.Active) do
             -- advance phase
-                rgbcfg.phaseT = rgbcfg.phaseT + (rgbcfg.speed * frameTime)
+                rgbcfg.phaseT = rgbcfg.phaseT + (rgbcfg.speed * RGBframeTime)
             -- OPTIONAL: keep t bounded (tidy, not required)
                 if rgbcfg.phaseT >= twopi then
                     rgbcfg.phaseT = rgbcfg.phaseT - twopi
