@@ -1,2 +1,2 @@
-mod = ModUtil.Mod.Register("RGBText")
+mod = ModUtil.Mod.Register("RGBTextGenerator")
 return mod
