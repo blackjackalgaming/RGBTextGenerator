@@ -59,19 +59,26 @@ local rgbtext = mod.RGBTextGenerator
 local active = rgbtext.Active
 local twopi = math.pi * 2
 
-local function RGBClamp01(intensity)
-  if type(intensity) ~= "number" then intensity = tonumber(intensity) or 0 end
-  if intensity <= 0 then return 0 end
-  if intensity >= 1 then return 1 end
-  return intensity
+local function RGBClamp01(x)
+    x = tonumber(x) or 0
+    if x <= 0 then return 0 end
+    if x >= 1 then return 1 end
+    return x
 end
 
+local function SetColorSafe( id, color )
+    SetColor({ Id = id, Color = color })
+end
+
+
+local x = 0
+local intensity = x
 -- Converts sin output (-1..1) -> (0..1), with optional intensity
 -- intensity ~ 0.35..0.5 recommended for UI readability
 local function SinTo01(scaleswing, intensity)
-  intensity = RGBClamp01(intensity)
-  -- center at 0.5, scale swing by intensity
-  return 0.5 + (intensity * scaleswing)
+    intensity = RGBClamp01(intensity)
+    -- center at 0.5, scale swing by intensity
+    return 0.5 + (intensity * scaleswing)
 end
 
 -- Call this when you have a text box id.
@@ -91,18 +98,18 @@ function RegisterRgbText(textId, RGBopts)
         intensity = tonumber(intensity) or 0.45, -- 0.45 = vivid but readable
     }
 
-  if not rgbtext.Running then
-    rgbtext.Running = true
+    if not rgbtext.Running then
+        rgbtext.Running = true
 
-    thread(function()
-      local frameTime = 0.03
+        thread(function()
+        local frameTime = 0.03
 
-      while rgbtext.Running == true do
-        local hasActiveEntries = false -- stop loop if no active ids
-        for _ in pairs(rgbtext.Active) do
-          hasActiveEntries = true
-          break
-        end
+        while rgbtext.Running == true do
+            local hasActiveEntries = false -- stop loop if no active ids
+            for _ in pairs(rgbtext.Active) do
+                hasActiveEntries = true
+                break
+            end
 
         if not hasActiveEntries then
           rgbtext.Running = false
