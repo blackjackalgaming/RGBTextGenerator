@@ -99,6 +99,17 @@ function mod.RGBTextGenerator.Register(textId, opts)
     expiresAt = (ttl == 0) and os.clock() or (os.clock() + ttl),
   }
 
+  local base = opts.baseColor
+if not base and game and game.Color then
+  -- Optional convenience: allow passing baseColorKey = "BoonPatchPerfect"
+  if opts.baseColorKey and game.Color[opts.baseColorKey] then
+    base = game.Color[opts.baseColorKey]
+  end
+end
+
+local baseNorm = NormalizeColor(base)
+
+
   StartRgbThreadIfNeeded()
 end
 
@@ -122,3 +133,41 @@ function mod.RGBTextGenerator.UnregisterAll()
     active[id] = nil
   end
 end
+
+
+
+-- Placeholders for functions
+
+local function NormalizeColor(col)
+  -- Accepts {97,230,255,255} OR {0.38,0.90,1.0,1.0}
+  if type(col) ~= "table" then
+    return nil
+  end
+
+  local r = tonumber(col[1]) or 0
+  local g = tonumber(col[2]) or 0
+  local b = tonumber(col[3]) or 0
+  local a = tonumber(col[4])
+
+  -- default alpha if missing
+  if a == nil then a = 255 end
+
+  -- Detect byte colors (0..255) vs float colors (0..1)
+  -- If any channel > 1, treat as 0..255.
+  if r > 1 or g > 1 or b > 1 or a > 1 then
+    return { r / 255, g / 255, b / 255, a / 255 }
+  end
+
+  -- Already normalized
+  return { r, g, b, a }
+end
+
+
+function mod.RGBTextGenerator.RegisterPerfect(textId, opts)
+  opts = opts or {}
+  opts.baseColorKey = opts.baseColorKey or "BoonPatchPerfect"
+  return mod.RGBTextGenerator.Register(textId, opts)
+end
+
+mod.RGBTextGenerator.RegisterPerfect(rarityTextId, { ttl = 180 })
+
