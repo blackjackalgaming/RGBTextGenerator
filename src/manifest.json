@@ -2,7 +2,7 @@
     "namespace": "blackjackalgamingfb",
     "name": "RGBTextGenerator",
     "description": "Hades 2 Mod that allows for RGB colored text in various parts of the game.",
-    "version_number": "0.0.1",
+    "version_number": "0.1.0",
     "dependencies": [
         "Hell2Modding-Hell2Modding-1.0.70",
         "LuaENVY-ENVY-1.2.0",

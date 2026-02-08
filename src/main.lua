@@ -1,3 +1,4 @@
+---@diagnostic disable: redefined-local
 ---@meta blackjackalgamingfb-RGBTextGenerator
 ---@diagnostic disable-next-line: undefined-global
 local mods = rom.mods
@@ -57,7 +58,7 @@ mod.RGBTextGenerator = {
 
 local rgbtext = mod.RGBTextGenerator
 local active = rgbtext.Active
-local twopi = math.pi * 2
+local twopi = ( math.pi * 2 )
 
 local function RGBClamp01(x)
     x = tonumber(x) or 0
@@ -66,7 +67,7 @@ local function RGBClamp01(x)
     return x
 end
 
-local function SetColorSafe( id, color )
+local function SetBaseColor( id, color )
     SetColor({ Id = id, Color = color })
 end
 
@@ -111,31 +112,33 @@ function RegisterRgbText(textId, RGBopts)
                 break
             end
 
-        if not hasActiveEntries then
-          rgbtext.Running = false
-          break
-        end
+            if not hasActiveEntries then
+            rgbtext.Running = false
+            break
+            end
 
-        for id, cfg in pairs(rgbtext.Active) do
-          -- advance phase
-          cfg.phaseT = cfg.phaseT + (cfg.speed * frameTime)
-          -- keep t bounded (tidy, not required)
-          if cfg.phaseT >= twopi then
-            cfg.phaseT = cfg.phaseT - twopi
-          end
+            for id, cfg in pairs(rgbtext.Active) do
+                -- advance phase
+                cfg.phaseT = cfg.phaseT + (cfg.speed * frameTime)
+                -- keep phaseT bounded (tidy, not required)
+                if cfg.phaseT >= twopi then
+                    cfg.phaseT = cfg.phaseT - twopi
+                end
 
-          -- sin-wave RGB with 120° phase offsets
-          local r = SinTo01(math.sin(cfg.phaseT), cfg.intensity)
-          local g = SinTo01(math.sin(cfg.phaseT + twopi / 3), cfg.intensity)
-          local b = SinTo01(math.sin(cfg.phaseT + (2 * twopi) / 3), cfg.intensity)
+                -- sin-wave RGB with 120° phase offsets
+                local r = SinTo01(math.sin(cfg.phaseT), cfg.intensity)
+                -- sin-wave RGB with 120° phase offsets
+                local g = SinTo01(math.sin(cfg.phaseT + twopi / 3), cfg.intensity)
+                -- sin-wave RGB with 120° phase offsets
+                local b = SinTo01(math.sin(cfg.phaseT + (2 * twopi) / 3), cfg.intensity)
 
           -- Apply (swap this for your real API if needed)
-          SetColor({ Id = id, Color = { r, g, b, cfg.alpha } })
+                SetColor({ Id = id, Color = { r, g, b, cfg.alpha } })
+            end
+            wait(frameTime)
         end
-        wait(frameTime)
-      end
-    end)
-  end
+        end)
+    end
 end
 
 
