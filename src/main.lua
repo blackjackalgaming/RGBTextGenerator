@@ -20,7 +20,7 @@ sjson = mods['SGG_Modding-SJSON']
 modutil = mods['SGG_Modding-ModUtil']
 
 ---@module 'SGG_Modding-Chalk'
-chalk = mods["SGG_Modding-Chalk"]
+chalk = mods['SGG_Modding-Chalk']
 ---@module 'SGG_Modding-ReLoad'
 reload = mods['SGG_Modding-ReLoad']
 
@@ -49,10 +49,9 @@ modutil.once_loaded.game(function()
     loader.load(on_ready, on_reload)
 end)
 
--- ...existing code...
-mod.RGBTextGenerator = {
-  Active = {}, -- [textId] = { phaseT = <phase/time in radians>, speed = ... , alpha = ... , intensity = ... }
-  Running = false,
+mod.RGBTextGenerator = mod.RGBTextGenerator or {
+    Active = {}, -- [textId] = cfg
+    Running = false,
 }
 
 local rgbtext = mod.RGBTextGenerator
@@ -61,88 +60,171 @@ local twopi = math.pi * 2
 
 local function RGBClamp01(x)
     x = tonumber(x) or 0
-    if x <= 0 then return 0 end
-    if x >= 1 then return 1 end
+    if x <= 0 then
+        return 0
+    end
+    if x >= 1 then
+        return 1
+    end
     return x
 end
 
-local function SetColorSafe( id, color )
+local function NormalizeColor(col)
+    if type(col) ~= 'table' then
+        return nil
+    end
+
+    local r = tonumber(col[1]) or 0
+    local g = tonumber(col[2]) or 0
+    local b = tonumber(col[3]) or 0
+    local a = tonumber(col[4])
+
+    if a == nil then
+        a = 255
+    end
+
+    if r > 1 or g > 1 or b > 1 or a > 1 then
+        return { r / 255, g / 255, b / 255, a / 255 }
+    end
+
+    return { r, g, b, a }
+end
+
+local function SinTo01(scaleSwing, intensity)
+    intensity = RGBClamp01(intensity)
+    return 0.5 + (intensity * scaleSwing)
+end
+
+local function SetColorSafe(id, color)
     SetColor({ Id = id, Color = color })
 end
 
+local function StartRgbThreadIfNeeded()
+    if rgbtext.Running then
+        return
+    end
 
-local x = 0
-local intensity = x
--- Converts sin output (-1..1) -> (0..1), with optional intensity
--- intensity ~ 0.35..0.5 recommended for UI readability
-local function SinTo01(scaleswing, intensity)
-    intensity = RGBClamp01(intensity)
-    -- center at 0.5, scale swing by intensity
-    return 0.5 + (intensity * scaleswing)
+    rgbtext.Running = true
+
+    thread(function()
+        local frameTime = 0.03
+
+        while true do
+            local hasAny = false
+            for _ in pairs(active) do
+                hasAny = true
+                break
+            end
+
+            if not hasAny then
+                rgbtext.Running = false
+                return
+            end
+
+            local now = os.clock()
+            for id, cfg in pairs(active) do
+                if cfg.expiresAt and now >= cfg.expiresAt then
+                    if cfg.baseColor then
+                        SetColorSafe(id, cfg.baseColor)
+                    end
+                    active[id] = nil
+                else
+                    cfg.phaseT = (cfg.phaseT or 0) + (cfg.speed * frameTime)
+                    if cfg.phaseT >= twopi then
+                        cfg.phaseT = cfg.phaseT - twopi
+                    end
+
+                    local r = SinTo01(math.sin(cfg.phaseT), cfg.intensity)
+                    local g = SinTo01(math.sin(cfg.phaseT + twopi / 3), cfg.intensity)
+                    local b = SinTo01(math.sin(cfg.phaseT + (2 * twopi) / 3), cfg.intensity)
+
+                    SetColorSafe(id, { r, g, b, cfg.alpha })
+                end
+            end
+
+            wait(frameTime)
+        end
+    end)
 end
 
--- Call this when you have a text box id.
-function RegisterRgbText(textId, RGBopts)
+-- PUBLIC API
+function mod.RGBTextGenerator.Register(textId, opts)
     if not textId then
         return
     end
 
-    if not RGBopts then
-        RGBopts = {}
+    opts = opts or {}
+
+    local ttl = tonumber(opts.ttl) or 180
+    if ttl < 0 then
+        ttl = 0
     end
 
-    rgbtext.Active[textId] = {
-        phaseT = tonumber(phaseT) or 0.0,        -- initial phase/time (radians)
-        speed = tonumber(speed) or 0.8,          -- radians/sec (tuned)
-        alpha = tonumber(alpha) or 1.0,          -- opacity
-        intensity = tonumber(intensity) or 0.45, -- 0.45 = vivid but readable
+    local base = opts.baseColor
+    if not base and game and game.Color and opts.baseColorKey and game.Color[opts.baseColorKey] then
+        base = game.Color[opts.baseColorKey]
+    end
+
+    active[textId] = {
+        phaseT = tonumber(opts.phaseT or opts.phase) or 0,
+        speed = tonumber(opts.speed) or 0.8,
+        alpha = tonumber(opts.alpha) or 1,
+        intensity = tonumber(opts.intensity) or 0.45,
+        baseColor = NormalizeColor(base),
+        expiresAt = (ttl == 0) and os.clock() or (os.clock() + ttl),
     }
 
-    if not rgbtext.Running then
-        rgbtext.Running = true
-
-        thread(function()
-        local frameTime = 0.03
-
-        while rgbtext.Running == true do
-            local hasActiveEntries = false -- stop loop if no active ids
-            for _ in pairs(rgbtext.Active) do
-                hasActiveEntries = true
-                break
-            end
-
-        if not hasActiveEntries then
-          rgbtext.Running = false
-          break
-        end
-
-        for id, cfg in pairs(rgbtext.Active) do
-          -- advance phase
-          cfg.phaseT = cfg.phaseT + (cfg.speed * frameTime)
-          -- keep t bounded (tidy, not required)
-          if cfg.phaseT >= twopi then
-            cfg.phaseT = cfg.phaseT - twopi
-          end
-
-          -- sin-wave RGB with 120° phase offsets
-          local r = SinTo01(math.sin(cfg.phaseT), cfg.intensity)
-          local g = SinTo01(math.sin(cfg.phaseT + twopi / 3), cfg.intensity)
-          local b = SinTo01(math.sin(cfg.phaseT + (2 * twopi) / 3), cfg.intensity)
-
-          -- Apply (swap this for your real API if needed)
-          SetColor({ Id = id, Color = { r, g, b, cfg.alpha } })
-        end
-        wait(frameTime)
-      end
-    end)
-  end
+    StartRgbThreadIfNeeded()
 end
 
-
-function UnregisterRgbText(textId)
-    if not textId then 
+function mod.RGBTextGenerator.Unregister(textId)
+    if not textId then
         return
     end
-    rgbtext.Active[textId] = nil
+
+    local cfg = active[textId]
+    if cfg and cfg.baseColor then
+        SetColorSafe(textId, cfg.baseColor)
+    end
+
+    active[textId] = nil
 end
 
+function mod.RGBTextGenerator.RegisterPerfect(textId, opts)
+    opts = opts or {}
+    opts.baseColorKey = opts.baseColorKey or 'BoonPatchPerfect'
+    return mod.RGBTextGenerator.Register(textId, opts)
+end
+
+local function findRarityTextId(screen)
+    if not screen or type(screen.Components) ~= 'table' then
+        return nil
+    end
+
+    local components = screen.Components
+    local candidates = {
+        'RarityText',
+        'TraitRarity',
+        'BoonRarity',
+    }
+
+    for _, key in ipairs(candidates) do
+        local component = components[key]
+        if component and component.Id then
+            return component.Id
+        end
+    end
+
+    return nil
+end
+
+modutil.path.Wrap('CreateBoonLootButtons', function(base, screen, lootData, args)
+    local result = base(screen, lootData, args)
+
+    local rarityTextId = findRarityTextId(screen)
+    if rarityTextId then
+        mod.RGBTextGenerator.RegisterPerfect(rarityTextId, { ttl = 180 })
+    end
+
+    return result
+end, mod)
