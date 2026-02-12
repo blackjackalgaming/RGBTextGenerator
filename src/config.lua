@@ -1,7 +1,7 @@
 ---@meta _
 local config = {
     Enabled = true,
-    Debug = false
+    Debug = false,
     RGBOpts = {}
 
 }
