@@ -1,4 +1,5 @@
 ---@meta blackjackalgamingfb-RGBTextGenerator
+
 ---@diagnostic disable-next-line: undefined-global
 local mods = rom.mods
 
@@ -18,12 +19,14 @@ import_as_fallback(game)
 sjson = mods['SGG_Modding-SJSON']
 ---@module 'SGG_Modding-ModUtil'
 modutil = mods['SGG_Modding-ModUtil']
-
 ---@module 'SGG_Modding-Chalk'
 chalk = mods['SGG_Modding-Chalk']
 ---@module 'SGG_Modding-ReLoad'
 reload = mods['SGG_Modding-ReLoad']
-
+---@module 'Jowday-BoonBuddy'
+boonbuddy = mods['Jowday-BoonBuddy']
+---@module 'Jowday-Perfectoinist'
+perfectionist = mods['Jowday-Perfectoinist']  -- make sure it's spelled incorrectly for the module name "Perfectoinist" but correctly in the code as "Perfectionist"
 ---@module 'config'
 config = chalk.auto 'config.lua'
 public.config = config
@@ -69,15 +72,15 @@ local function RGBClamp01(x)
     return x
 end
 
-local function NormalizeColor(col)
-    if type(col) ~= 'table' then
+local function NormalizeColor(Color)
+    if type(Color) ~= 'table' then
         return nil
     end
 
-    local r = tonumber(col[1]) or 0
-    local g = tonumber(col[2]) or 0
-    local b = tonumber(col[3]) or 0
-    local a = tonumber(col[4])
+    local r = tonumber(Color[1]) or 0
+    local g = tonumber(Color[2]) or 0
+    local b = tonumber(Color[3]) or 0
+    local a = tonumber(Color[4])
 
     if a == nil then
         a = 255
