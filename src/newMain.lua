@@ -28,4 +28,29 @@ boonbuddy = mods['Jowday-BoonBuddy']
 perfectionist = mods['Jowday-Perfectoinist']
 
 -- Load configuration
-config = chalk.auto 
+---@module 'config'
+config = chalk.auto 'config.lua'
+public.config = config
+
+-- Prime the mod for loading
+local function on_ready()
+    if config.Enabled == false then
+        return
+    end
+    mod = modutil.mod.Mod.Register(_PLUGIN.guid)
+    import 'core.lua'
+    import 'ready.lua'
+end
+
+-- Set reload handler
+local function on_reload()
+    if config.Enabled == false then
+        return
+    end
+    import 'reload.lua'
+end
+
+-- Load the mod when the game is ready
+modutil.once_loaded.game(function()
+    loader.load(on_ready, on_reload)
+end)
