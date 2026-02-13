@@ -24,7 +24,7 @@ chalk = mods['SGG_Modding-Chalk']
 ---@module 'SGG_Modding-ReLoad'
 reload = mods['SGG_Modding-ReLoad']
 ---@module 'Jowday-BoonBuddy'
-boonbuddy = mods['Jowday-BoonBuddy']
+---@boonbuddy = mods['Jowday-BoonBuddy']
 ---@module 'Jowday-Perfectoinist'
 perfectionist = mods['Jowday-Perfectoinist']  -- make sure it's spelled incorrectly for the module name "Perfectoinist" but correctly in the code as "Perfectionist"
 ---@module 'config'

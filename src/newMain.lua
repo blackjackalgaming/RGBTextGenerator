@@ -20,7 +20,7 @@ modutil = mods['SGG_Modding-ModUtil']
 chalk = mods['SGG_Modding-Chalk']
 ---@module 'SGG_Modding-Reload'
 reload = mods['SGG_Modding-Reload']
-
+ 
 -- Load other dependencies
 ---@module 'Jowday-BoonBuddy'
 boonbuddy = mods['Jowday-BoonBuddy']
@@ -37,6 +37,9 @@ local function on_ready()
     if config.Enabled == false then
         return
     end
+    if config.Debug then
+        print("[RGBTextGenerator] mod loaded and ready to go!")
+    end
     mod = modutil.mod.Mod.Register(_PLUGIN.guid)
     import 'core.lua'
     import 'ready.lua'
@@ -50,7 +53,19 @@ local function on_reload()
     import 'reload.lua'
 end
 
+local loader = reload.auto_single()
+
 -- Load the mod when the game is ready
 modutil.once_loaded.game(function()
     loader.load(on_ready, on_reload)
+end)
+
+-- Initialization when save data is loaded
+modutil.once_loaded.save(function()
+    if config.Enabled == false then
+        return
+    end
+    if config.Debug then
+        print("[RGBTextGenerator] Save data loaded.")
+    end
 end)
