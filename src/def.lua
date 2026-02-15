@@ -10,13 +10,4 @@ local public = {}
 
 -- https://discord.com/channels/667753182608359424/1237738649484005469/1250904769162117140
 
----@class RGBTextObject
----@field public SetText fun(text: string): nil
-
----@param screen table
----@param key string
----@param text string
----@return RGBTextObject
-function public.CreateRGBText(screen, key, text) end
-
 return public

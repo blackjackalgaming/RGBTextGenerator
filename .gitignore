@@ -1,54 +1,15 @@
-########################################
-# OS junk
-########################################
-.DS_Store
-Thumbs.db
-desktop.ini
+# For files used only by a symlink to the ReturnOfModding plugins folder
+/src/LICENSE
+/src/icon.png
+/src/manifest.json
 
-########################################
-# VS Code (local-only settings)
-########################################
-.vscode/
+# For source files used to build packages
+/packages
+
+# For build artifacts created by the Thunderstore CLI
+/build
+# For the Thunderstore CLI executable itself, if you include it in your root folder
+tcli.exe
+
+# For workspace files.
 *.code-workspace
-
-########################################
-# Temp / logs
-########################################
-*.log
-*.tmp
-*.bak
-*.swp
-
-########################################
-# Build / packaging outputs (common)
-########################################
-dist/
-build/
-out/
-release/
-packages/
-*.zip
-
-########################################
-# Node / Python (if you ever add tooling)
-########################################
-node_modules/
-__pycache__/
-*.pyc
-.venv/
-
-########################################
-# r2modman / BepInEx local stuff (often ends up in repos by accident)
-########################################
-BepInEx/
-doorstop_config.ini
-winhttp.dll
-changelog.txt
-
-########################################
-# Modding-specific “do not commit”
-# (put any extracted vanilla/reference stuff here)
-########################################
-vanilla/
-reference/
-extracted/
