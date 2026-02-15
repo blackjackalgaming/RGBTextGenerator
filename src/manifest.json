@@ -9,7 +9,9 @@
         "SGG_Modding-Chalk-2.1.1",
         "SGG_Modding-Reload-1.0.2",
         "SGG_Modding-SJSON-1.0.0",
-        "SGG_Modding-ModUtil-4.0.1"
+        "SGG_Modding-ModUtil-4.0.1",
+        "Jowday-BoonBuddy-1.1.0",
+        "Jowday-Perfectoinis-0.2.1"
     ],
     "website_url": "https://github.com/blackjackalgamingfb/RGBTextGenerator",
     "FullName": "blackjackalgamingfb-RGBTextGenerator"
