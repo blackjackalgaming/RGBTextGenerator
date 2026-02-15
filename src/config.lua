@@ -2,7 +2,6 @@
 local config = {
     Enabled = true,
     Debug = false,
-    Intensity = 
     RGBOpts = {  -- PhaseT, Speed, frameTime, etc.
         
     }
