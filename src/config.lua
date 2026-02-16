@@ -1,7 +1,6 @@
----@meta _
 local config = {
-    Enabled = true,
-    Debug = false,
+    enabled = true,
+    debug = true,
     RGBOpts = {  -- PhaseT, Speed, frameTime, etc.     
     }
 

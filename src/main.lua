@@ -1,11 +1,14 @@
----@meta blackjackalgamingfb-RGBTextGenerator
+---@meta blackjackalgaming-RGBTextGenerator
 ---@diagnostic disable: lowercase-global
 ---@diagnostic disable-next-line: undefined-global
 local mods = rom.mods
 
 -- Setup environment isolation
+---@module 'LuaENVY-ENVY'
+envy = mods['LuaENVY-ENVY']
 ---@module 'LuaENVY-ENVY-auto'
-mods['LuaENVY-ENVY-auto'].auto()
+envy.auto()
+
 ---@diagnostic disable-next-line: undefined-global
 rom = rom
 ---@diagnostic disable-next-line: undefined-global
@@ -20,7 +23,7 @@ modutil = mods['SGG_Modding-ModUtil']
 chalk = mods['SGG_Modding-Chalk']
 ---@module 'SGG_Modding-Reload'
 reload = mods['SGG_Modding-Reload']
- 
+
 -- Load other dependencies
 ---@module 'Jowday-BoonBuddy'
 boonbuddy = mods['Jowday-BoonBuddy']
