@@ -1,35 +1,11 @@
-########################################
-# Normalize line endings (stops CRLF/LF pain)
-########################################
-* text=auto
+# Use LF as default EOL marker
+* text=auto eol=lf
 
-########################################
-# Text files
-########################################
-*.lua  text
-*.json text
-*.sjson text
-*.md   text
-*.txt  text
-*.toml text
-*.yaml text
-*.yml  text
+# Exclude files from 'git archive'
+.gitattributes export-ignore
+.github export-ignore
+.gitignore export-ignore
+.gitmodules export-ignore
 
-########################################
-# Binary assets (do NOT diff or normalize)
-########################################
-*.png  binary
-*.jpg  binary
-*.jpeg binary
-*.webp binary
-*.gif  binary
-*.bmp  binary
-*.ico  binary
-
-*.wav  binary
-*.ogg  binary
-*.mp3  binary
-
-*.bik  binary
-*.bk2  binary
-
+# Git LFS
+*.png filter=lfs diff=lfs merge=lfs -text
