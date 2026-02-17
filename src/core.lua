@@ -1,4 +1,4 @@
----@meta _
+---@meta blackjackalgaming-RGBTextGenerator
 ---@diagnostic disable: spell-check
 
 -- Mod initialization
@@ -52,7 +52,7 @@ local twopi = (math.pi * 2)
 
 function GetRGBTextColor( phase, alpha )
 	local speed = mod.RGBTextGenerator.Speed or 0.20
-	local t = (GetTime({}) * speed) + (phase or 0)
+	local t = (game.GetTime({}) * speed) + (phase or 0)
 	local radians = (t * twopi)
 	local r = math.floor(128 + 127 * math.sin(radians))
 	local g = math.floor(128 + 127 * math.sin(radians + twopi / 3))
@@ -61,25 +61,25 @@ function GetRGBTextColor( phase, alpha )
 end
 
 function RGBTextThread( id, phase, alpha, screenName, threadName )
-	local interval = RGBTextMod.UpdateInterval or 0.033
+	local interval = mod.RGBTextGenerator.UpdateInterval or 0.033
 	while id ~= nil do
-		if screenName ~= nil and not IsScreenOpen( screenName ) then
+		if screenName ~= nil and not game.IsScreenOpen( screenName ) then
 			break
 		end
-		ModifyTextBox({ Id = id, Color = GetRGBTextColor( phase, alpha ) })
-		waitUnmodified( interval, threadName )
+		game.ModifyTextBox({ Id = id, Color = GetRGBTextColor( phase, alpha ) })
+		game.waitUnmodified( interval, threadName )
 	end
 end
 
 function StartRGBTextThread( args )
-	if RGBTextMod == nil or RGBTextMod.Enabled == false then
+	if mod == nil or mod.RGBTextGenerator == nil or config.enabled == false then
 		return
 	end
 	if args == nil or args.Id == nil then
 		return
 	end
 	local threadName = args.ThreadName or ("RGBText_"..tostring(args.Id))
-	if HasThread( threadName ) then
+	if game.HasThread( threadName ) then
 		return
 	end
 	thread( RGBTextThread, args.Id, args.Phase or 0, args.Alpha or 255, args.ScreenName, threadName )

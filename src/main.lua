@@ -1,15 +1,21 @@
----@meta blackjackalgamingfb-RGBTextGenerator
+---@meta blackjackalgaming-RGBTextGenerator
 ---@diagnostic disable: lowercase-global
 ---@diagnostic disable-next-line: undefined-global
 local mods = rom.mods
 
 -- Setup environment isolation
+---@module 'LuaENVY-ENVY'
+envy = mods['LuaENVY-ENVY']
 ---@module 'LuaENVY-ENVY-auto'
-mods['LuaENVY-ENVY-auto'].auto()
+envy.auto()
+
 ---@diagnostic disable-next-line: undefined-global
 rom = rom
 ---@diagnostic disable-next-line: undefined-global
 _PLUGIN = _PLUGIN
+
+-- Setup game and utility service modules
+---@module 'SGG_Modding-Hades2GameDef-Globals'
 
 -- Setup game and utility service modules
 ---@module 'SGG_Modding-Hades2GameDef-Globals'
@@ -20,7 +26,7 @@ modutil = mods['SGG_Modding-ModUtil']
 chalk = mods['SGG_Modding-Chalk']
 ---@module 'SGG_Modding-Reload'
 reload = mods['SGG_Modding-Reload']
- 
+
 -- Load other dependencies
 ---@module 'Jowday-BoonBuddy'
 boonbuddy = mods['Jowday-BoonBuddy']
@@ -34,10 +40,10 @@ public.config = config
 
 -- Prime the mod for loading
 local function on_ready()
-    if config.Enabled == false then
+    if config.enabled == false then
         return
     end
-    if config.Debug then
+    if config.debug then
         print("[RGBTextGenerator] mod loaded and ready to go!")
     end
     mod = modutil.mod.Mod.Register(_PLUGIN.guid)
@@ -47,7 +53,7 @@ end
 
 -- Set reload handler
 local function on_reload()
-    if config.Enabled == false then
+    if config.enabled == false then
         return
     end
     import 'reload.lua'
@@ -62,10 +68,11 @@ end)
 
 -- Initialization when save data is loaded
 modutil.once_loaded.save(function()
-    if config.Enabled == false then
+    if config.enabled == false then
         return
     end
-    if config.Debug then
+    if config.debug then
         print("[RGBTextGenerator] Save data loaded.")
     end
 end)
+
