@@ -1,4 +1,4 @@
----@meta blackjackalgaming-RGBTextGenerator
+---@meta _
 ---@diagnostic disable: lowercase-global
 ---@diagnostic disable-next-line: undefined-global
 local mods = rom.mods
@@ -14,11 +14,10 @@ rom = rom
 ---@diagnostic disable-next-line: undefined-global
 _PLUGIN = _PLUGIN
 
--- Setup game and utility service modules
----@module 'SGG_Modding-Hades2GameDef-Globals'
 
 -- Setup game and utility service modules
 ---@module 'SGG_Modding-Hades2GameDef-Globals'
+
 game = rom.game
 ---@module 'SGG_Modding-ModUtil'
 modutil = mods['SGG_Modding-ModUtil']
