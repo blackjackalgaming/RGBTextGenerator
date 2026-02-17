@@ -1,7 +1,6 @@
 ---@meta _
 ---@diagnostic disable: spell-check
 
--- Mod initialization
 local function ArePerfectModsAvailable()
     if not rom or not rom.mods then
         return false 
