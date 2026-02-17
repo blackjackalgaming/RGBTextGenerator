@@ -39,27 +39,21 @@ config = chalk.auto 'config.lua'
 public.config = config
 
 -- Prime the mod for loading
--- Prime the mod for loading
 local function on_ready()
-    if config.Enabled == false then
+    if config.enabled == false then
         return
     end
-    if config.Debug then
-        print("[RGBTextGenerator] mod loaded and ready to go!")
-    end
-    if config.Debug then
+    if config.debug then
         print("[RGBTextGenerator] mod loaded and ready to go!")
     end
     mod = modutil.mod.Mod.Register(_PLUGIN.guid)
-    import 'core.lua'
     import 'core.lua'
     import 'ready.lua'
 end
 
 -- Set reload handler
--- Set reload handler
 local function on_reload()
-    if config.Enabled == false then
+    if config.enabled == false then
         return
     end
     import 'reload.lua'
@@ -68,24 +62,17 @@ end
 local loader = reload.auto_single()
 
 -- Load the mod when the game is ready
--- Load the mod when the game is ready
 modutil.once_loaded.game(function()
     loader.load(on_ready, on_reload)
 end)
 
 -- Initialization when save data is loaded
 modutil.once_loaded.save(function()
-    if config.Enabled == false then
--- Initialization when save data is loaded
-modutil.once_loaded.save(function()
-    if config.Enabled == false then
+    if config.enabled == false then
         return
     end
-    if config.Debug then
+    if config.debug then
         print("[RGBTextGenerator] Save data loaded.")
     end
 end)
-    if config.Debug then
-        print("[RGBTextGenerator] Save data loaded.")
-    end
-end)
+
