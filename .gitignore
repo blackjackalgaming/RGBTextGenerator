@@ -1,0 +1,54 @@
+########################################
+# OS junk
+########################################
+.DS_Store
+Thumbs.db
+desktop.ini
+
+########################################
+# VS Code (local-only settings)
+########################################
+.vscode/
+*.code-workspace
+
+########################################
+# Temp / logs
+########################################
+*.log
+*.tmp
+*.bak
+*.swp
+
+########################################
+# Build / packaging outputs (common)
+########################################
+dist/
+build/
+out/
+release/
+packages/
+*.zip
+
+########################################
+# Node / Python (if you ever add tooling)
+########################################
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+########################################
+# r2modman / BepInEx local stuff (often ends up in repos by accident)
+########################################
+BepInEx/
+doorstop_config.ini
+winhttp.dll
+changelog.txt
+
+########################################
+# Modding-specific “do not commit”
+# (put any extracted vanilla/reference stuff here)
+########################################
+vanilla/
+reference/
+extracted/

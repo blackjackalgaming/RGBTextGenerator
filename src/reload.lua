@@ -1,0 +1,4 @@
+---@meta blackjackalgamingfb-RGBTextGenerator
+-- globals we define are private to our plugin.
+---@diagnostic disable: lowercase-global
+return on_reload
