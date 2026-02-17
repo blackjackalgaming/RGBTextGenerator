@@ -5,7 +5,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "blackjackalgaming"
 name = "RGBTextGenerator"
-versionNumber = "0.0.1"
+versionNumber = "0.1.0"
 description = "Allows for certain text to display in RGB"
 websiteUrl = ""
 containsNsfwContent = false
