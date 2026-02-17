@@ -1,4 +1,4 @@
----@meta blackjackalgaming-RGBTextGenerator
+---@meta _
 ---@diagnostic disable: spell-check
 
 -- Mod initialization

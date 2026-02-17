@@ -4,6 +4,7 @@
 local mods = rom.mods
 
 -- Setup environment isolation
+
 ---@module 'LuaENVY-ENVY'
 envy = mods['LuaENVY-ENVY']
 ---@module 'LuaENVY-ENVY-auto'
@@ -13,7 +14,6 @@ envy.auto()
 rom = rom
 ---@diagnostic disable-next-line: undefined-global
 _PLUGIN = _PLUGIN
-
 
 -- Setup game and utility service modules
 ---@module 'SGG_Modding-Hades2GameDef-Globals'
