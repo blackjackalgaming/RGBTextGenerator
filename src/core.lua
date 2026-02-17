@@ -2,10 +2,6 @@
 ---@diagnostic disable: spell-check
 
 -- Mod initialization
-if config.debug then
-    print("[RGBTextGenerator] Core logic loaded")
-end
-
 local function ArePerfectModsAvailable()
     if not rom or not rom.mods then
         return false 
