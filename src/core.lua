@@ -17,12 +17,12 @@ function GetPerfectionColor()
     if boonBuddy ~= nil and perfectionist ~= nil then
         perfectionColor = { 97, 230, 255, 255 } -- is same call as in Perfectoinist mod, but we need to set it here to be able to use it in our code
             if config.debug then
-                print("[RGBTextGenerator] Perfection mods found, using custom color for perfection text")
+                rom.log.debug("[RGBTextGenerator] Jowday-Perfectoinist mod found, new color set.")
             end
         return perfectionColor
     else
         if config.debug then
-            print("[RGBTextGenerator] Perfection mods not found, using default color for perfection text")
+            rom.log.debug("[RGBTextGenerator] Perfection mods not found, using default color for perfection text")
         end
         return game.Color.BoonPatchPerfect
     end
@@ -80,19 +80,46 @@ function StartRGBTextThread( args )
 	thread( RGBTextThread, args.Id, args.Phase or 0, args.Alpha or 255, args.ScreenName, threadName )
 end
 
+function InstallRGBTextHooks()
+	if mod == nil or mod.RGBTextGenerator == nil or config.enabled == false then
+		return
+	end
+	if mod.RGBTextGenerator.HooksInstalled then
+		return
+	end
+	mod.RGBTextGenerator.HooksInstalled = true
 
--- Example 1: Trait name (boons, upgrades)
-local phase = GetRGBPhaseFromKey( traitData.Name )
-StartRGBTextThread({ Id = rarityText.Id, Phase = phase, ScreenName = screen.Name })
+	if config.debug then
+		rom.log.debug("[RGBTextGenerator] Installing hooks...")
+	end
 
--- Example 2: Upgrade choice item
-local phase = GetRGBPhaseFromKey( upgradeData.Name or itemData.ItemName )
-StartRGBTextThread({ Id = titleText.Id, Phase = phase, ScreenName = screen.Name })
+	modutil.mod.Path.Wrap("CreateUpgradeChoiceButton", function(base, screen, lootData, itemIndex, itemData, args)
+		local button = base(screen, lootData, itemIndex, itemData, args)
+		if button and button.Id then
+			if itemData == nil or itemData.Rarity ~= "Perfect" then
+				return button
+			end
+			local phaseKey = nil
+			if itemData ~= nil then
+				phaseKey = itemData.ItemName or itemData.Name
+			end
+			if phaseKey == nil and lootData ~= nil then
+				phaseKey = lootData.Name
+			end
+			if phaseKey == nil then
+				phaseKey = "Choice_" .. tostring(itemIndex)
+			end
+			local phase = GetRGBPhaseFromKey(phaseKey)
+			StartRGBTextThread({ Id = button.Id, Phase = phase, ScreenName = screen and screen.Name })
+			if config.debug then
+				rom.log.debug("[RGBTextGenerator] RGB started for Perfect rarity: " .. tostring(phaseKey))
+			end
+		end
+		return button
+	end)
+end
 
--- Example 3: Sell screen item (use button or trait key)
-local phase = GetRGBPhaseFromKey( button.UpgradeName or traitData.Name )
-StartRGBTextThread({ Id = rarityText.Id, Phase = phase, ScreenName = screen.Name })
 
--- Example 4: Fallback when no stable name (use index)
-local phase = GetRGBPhaseFromKey( "Choice_"..tostring(itemIndex) )
-StartRGBTextThread({ Id = titleText.Id, Phase = phase, ScreenName = screen.Name })
+-- Example usage (do not run at import time)
+-- local phase = GetRGBPhaseFromKey( upgradeData.Name or itemData.ItemName )
+-- StartRGBTextThread({ Id = titleText.Id, Phase = phase, ScreenName = screen.Name })

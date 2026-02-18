@@ -45,10 +45,11 @@ local function on_ready()
         return
     end
     if config.debug then
-        print("[RGBTextGenerator] mod loaded and ready to go!")
+        rom.log.debug("[RGBTextGenerator] mod loaded and ready to go!")
     end
     mod = modutil.mod.Mod.Register(_PLUGIN.guid)
     import 'core.lua'
+    InstallRGBTextHooks()
     import 'ready.lua'
 end
 
@@ -73,7 +74,6 @@ modutil.once_loaded.save(function()
         return
     end
     if config.debug then
-        print("[RGBTextGenerator] Save data loaded.")
+        rom.log.debug("[RGBTextGenerator] Save data loaded.")
     end
 end)
-
