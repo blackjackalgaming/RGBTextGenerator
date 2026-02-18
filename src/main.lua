@@ -4,11 +4,8 @@
 local mods = rom.mods
 
 -- Setup environment isolation
-
----@module 'LuaENVY-ENVY'
-envy = mods['LuaENVY-ENVY']
 ---@module 'LuaENVY-ENVY-auto'
-envy.auto()
+mods["LuaENVY-ENVY"].auto()
 
 ---@diagnostic disable-next-line: undefined-global
 rom = rom
@@ -16,15 +13,20 @@ rom = rom
 _PLUGIN = _PLUGIN
 
 -- Setup game and utility service modules
----@module 'SGG_Modding-Hades2GameDef-Globals'
-
+---@module 'game'
 game = rom.game
+---@module 'game-import'
+import_as_fallback(game)
+
+---@module 'SGG_Modding-SJSON'
+sjson = mods['SGG_Modding-SJSON']
 ---@module 'SGG_Modding-ModUtil'
 modutil = mods['SGG_Modding-ModUtil']
+
 ---@module 'SGG_Modding-Chalk'
 chalk = mods['SGG_Modding-Chalk']
----@module 'SGG_Modding-Reload'
-reload = mods['SGG_Modding-Reload']
+---@module 'SGG_Modding-ReLoad'
+reload = mods['SGG_Modding-ReLoad']
 
 -- Load other dependencies
 ---@module 'Jowday-BoonBuddy'
