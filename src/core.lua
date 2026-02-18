@@ -1,5 +1,6 @@
 ---@meta _
 ---@diagnostic disable: spell-check
+---@diagnostic disable: undefined-field
 
 local function ArePerfectModsAvailable()
     if not rom or not rom.mods then
@@ -77,7 +78,34 @@ function StartRGBTextThread( args )
 	if game.HasThread( threadName ) then
 		return
 	end
-	thread( RGBTextThread, args.Id, args.Phase or 0, args.Alpha or 255, args.ScreenName, threadName )
+	game.thread( RGBTextThread, args.Id, args.Phase or 0, args.Alpha or 255, args.ScreenName, threadName )
+end
+
+local function IsPerfectRarity(value)
+	if value == nil then
+		return false
+	end
+
+	local rarity = value
+	if type(value) == "table" then
+		local levels = value.RarityLevels
+		if levels and levels.Perfect then
+			return true
+		end
+		rarity = value.Rarity
+	end
+
+	local rarityValues = game.TraitRarityData and game.TraitRarityData.RarityValues
+	if type(rarity) == "string" then
+		if rarity == "Perfect" then
+			return true
+		end
+		return rarityValues and rarityValues[rarity] == rarityValues.Perfect
+	end
+	if type(rarity) == "number" then
+		return rarityValues and rarity == rarityValues.Perfect
+	end
+	return false
 end
 
 function InstallRGBTextHooks()
@@ -96,7 +124,7 @@ function InstallRGBTextHooks()
 	modutil.mod.Path.Wrap("CreateUpgradeChoiceButton", function(base, screen, lootData, itemIndex, itemData, args)
 		local button = base(screen, lootData, itemIndex, itemData, args)
 		if button and button.Id then
-			if itemData == nil or itemData.Rarity ~= "Perfect" then
+			if itemData == nil or not IsPerfectRarity(itemData.Rarity) then
 				return button
 			end
 			local phaseKey = nil
@@ -117,9 +145,54 @@ function InstallRGBTextHooks()
 		end
 		return button
 	end)
+
+	modutil.mod.Path.Wrap("CreateBoonInfoButton", function(base, screen, traitName, index)
+		local result = base(screen, traitName, index)
+		local traitInfo = screen
+			and screen.Components
+			and screen.Components["BooninfoButton" .. tostring(index)]
+		local purchaseButton = traitInfo and traitInfo.PurchaseButton
+		local titleBox = traitInfo and traitInfo.TitleBox
+		local traitData = purchaseButton and purchaseButton.TraitData
+		if purchaseButton and purchaseButton.Id and traitData and IsPerfectRarity(traitData.Rarity) then
+			local phaseKey = traitData.Name or traitName or ("BoonInfo_" .. tostring(index))
+			local phase = GetRGBPhaseFromKey(phaseKey)
+			StartRGBTextThread({ Id = purchaseButton.Id, Phase = phase, ScreenName = screen and screen.Name })
+			if titleBox and titleBox.Id then
+				StartRGBTextThread({ Id = titleBox.Id, Phase = phase, ScreenName = screen and screen.Name })
+			end
+			if config.debug then
+				rom.log.debug("[RGBTextGenerator] RGB started for Perfect boon info: " .. tostring(phaseKey))
+			end
+		end
+		return result
+	end)
+
+	modutil.mod.Path.Wrap("UpdateWeaponUpgradeButtons", function(base, screen, weaponName)
+		local result = base(screen, weaponName)
+		if screen and screen.Components then
+			for itemIndex = 1, 5 do
+				local purchaseButton = screen.Components["PurchaseButton" .. tostring(itemIndex)]
+				local traitData = purchaseButton and purchaseButton.TraitData
+				if traitData and IsPerfectRarity(traitData.Rarity) then
+					local rarityComponent = screen.Components["InfoBoxRarity" .. tostring(itemIndex)]
+					local textId = rarityComponent and rarityComponent.Id
+					local nameComponent = screen.Components["InfoBoxName" .. tostring(itemIndex)]
+					local nameId = nameComponent and nameComponent.Id
+					if textId ~= nil then
+						local phaseKey = traitData.Name or ("Aspect_" .. tostring(itemIndex))
+						local phase = GetRGBPhaseFromKey(phaseKey)
+						StartRGBTextThread({ Id = textId, Phase = phase, ScreenName = screen.Name })
+						if nameId ~= nil then
+							StartRGBTextThread({ Id = nameId, Phase = phase, ScreenName = screen.Name })
+						end
+						if config.debug then
+							rom.log.debug("[RGBTextGenerator] RGB started for Perfect aspect: " .. tostring(phaseKey))
+						end
+					end
+				end
+			end
+		end
+		return result
+	end)
 end
-
-
--- Example usage (do not run at import time)
--- local phase = GetRGBPhaseFromKey( upgradeData.Name or itemData.ItemName )
--- StartRGBTextThread({ Id = titleText.Id, Phase = phase, ScreenName = screen.Name })
