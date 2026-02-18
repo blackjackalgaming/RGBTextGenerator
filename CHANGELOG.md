@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### version 0.2.1  
+
+- added RGB options: intensity (default 0.7), speed, sync cycle/phase.
+- added safer Perfect checks that require Perfectoinist and rarity data to be present.
+- added RGB for boon info title text and weapon aspect name/rarity text.
+- aligned weapon aspect Perfect detection with AspectRarityText/WeaponRarityUpgradeOrder.
+
 ### version 0.2.0  
 
 - first successful test of the RGB functionality using Jowday-Perfectoinist as a starting point.

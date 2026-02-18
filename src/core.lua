@@ -32,9 +32,62 @@ end
 
 mod.RGBTextGenerator = {
 	Speed = 0.20,        -- cycles per second
-	UpdateInterval = 0.033,
+	UpdateInterval = 0.033, -- seconds between color updates
+	Intensity = 0.7,     -- 0.0 = gray, 1.0 = full color
+	SyncCycle = false,  -- true = all RGB text shares the same phase
+	SyncPhase = 0.0,    -- shared phase when SyncCycle is true (0.0 - 1.0)
 }
 
+
+local function GetRGBSpeed()
+	local speed = mod.RGBTextGenerator.Speed
+	if config and config.RGBOpts and config.RGBOpts.Speed ~= nil then
+		speed = config.RGBOpts.Speed
+	end
+	if speed == nil then
+		return 0.20
+	end
+	if speed < 0 then
+		return 0
+	end
+	if speed > 5 then
+		return 5
+	end
+	return speed
+end
+
+local function GetRGBIntensity()
+	local intensity = mod.RGBTextGenerator.Intensity
+	if config and config.RGBOpts and config.RGBOpts.Intensity ~= nil then
+		intensity = config.RGBOpts.Intensity
+	end
+	if intensity == nil then
+		return 1.0
+	end
+	if intensity < 0 then
+		return 0
+	end
+	if intensity > 1 then
+		return 1
+	end
+	return intensity
+end
+
+local function IsSyncCycleEnabled()
+	local sync = mod.RGBTextGenerator.SyncCycle
+	if config and config.RGBOpts and config.RGBOpts.SyncCycle ~= nil then
+		sync = config.RGBOpts.SyncCycle
+	end
+	return sync == true
+end
+
+local function GetSyncPhase()
+	local phase = mod.RGBTextGenerator.SyncPhase
+	if config and config.RGBOpts and config.RGBOpts.SyncPhase ~= nil then
+		phase = config.RGBOpts.SyncPhase
+	end
+	return phase or 0
+end
 function GetRGBPhaseFromKey( key )
 	local s = tostring( key or "" )
 	local hash = 0
@@ -47,12 +100,15 @@ end
 local twopi = (math.pi * 2)
 
 function GetRGBTextColor( phase, alpha )
-	local speed = mod.RGBTextGenerator.Speed or 0.20
+	local speed = GetRGBSpeed()
 	local t = (game.GetTime({}) * speed) + (phase or 0)
 	local radians = (t * twopi)
-	local r = math.floor(128 + 127 * math.sin(radians))
-	local g = math.floor(128 + 127 * math.sin(radians + twopi / 3))
-	local b = math.floor(128 + 127 * math.sin(radians + (2 * twopi / 3)))
+	local intensity = GetRGBIntensity()
+	local amplitude = 127 * intensity
+	local r = math.floor(128 + amplitude * math.sin(radians))
+	local g = math.floor(128 + amplitude * math.sin(radians + twopi / 3))
+	local b = math.floor(128 + amplitude * math.sin(radians + (2 * twopi / 3)))
+	rom.log.debug(b)
 	return { r, g, b, alpha or 255 }
 end
 
@@ -78,7 +134,11 @@ function StartRGBTextThread( args )
 	if game.HasThread( threadName ) then
 		return
 	end
-	game.thread( RGBTextThread, args.Id, args.Phase or 0, args.Alpha or 255, args.ScreenName, threadName )
+	local phase = args.Phase or 0
+	if IsSyncCycleEnabled() then
+		phase = GetSyncPhase()
+	end
+	game.thread( RGBTextThread, args.Id, phase, args.Alpha or 255, args.ScreenName, threadName )
 end
 
 local function IsPerfectRarity(value)
