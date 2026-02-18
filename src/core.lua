@@ -85,6 +85,14 @@ local function IsPerfectRarity(value)
 	if value == nil then
 		return false
 	end
+	if not ArePerfectModsAvailable() then
+		return false
+	end
+
+	local rarityValues = game.TraitRarityData and game.TraitRarityData.RarityValues
+	if not (rarityValues and rarityValues.Perfect) then
+		return false
+	end
 
 	local rarity = value
 	if type(value) == "table" then
@@ -95,7 +103,6 @@ local function IsPerfectRarity(value)
 		rarity = value.Rarity
 	end
 
-	local rarityValues = game.TraitRarityData and game.TraitRarityData.RarityValues
 	if type(rarity) == "string" then
 		if rarity == "Perfect" then
 			return true
@@ -107,6 +114,28 @@ local function IsPerfectRarity(value)
 	end
 	return false
 end
+
+local function IsPerfectAspectRarity(traitData)
+	if traitData == nil then
+		return false
+	end
+	if not ArePerfectModsAvailable() then
+		return false
+	end
+	local rarityValues = game.TraitRarityData and game.TraitRarityData.RarityValues
+	local aspectText = game.TraitRarityData and game.TraitRarityData.AspectRarityText
+	local rarityOrder = game.TraitRarityData and game.TraitRarityData.WeaponRarityUpgradeOrder
+	if not (rarityValues and rarityValues.Perfect and aspectText and rarityOrder) then
+		return false
+	end
+	local rarityLevel = game.GetRarityValue(traitData.Rarity)
+	local perfectLabel = aspectText[rarityValues.Perfect]
+	if perfectLabel and aspectText[rarityLevel] == perfectLabel then
+		return true
+	end
+	return rarityOrder[rarityLevel] == "Perfect"
+end
+
 
 function InstallRGBTextHooks()
 	if mod == nil or mod.RGBTextGenerator == nil or config.enabled == false then
@@ -122,6 +151,10 @@ function InstallRGBTextHooks()
 	end
 
 	modutil.mod.Path.Wrap("CreateUpgradeChoiceButton", function(base, screen, lootData, itemIndex, itemData, args)
+		if config.debug then
+			rom.log.debug("[RGBTextGenerator] Wrapping CreateUpgradeChoiceButton")
+		end
+
 		local button = base(screen, lootData, itemIndex, itemData, args)
 		if button and button.Id then
 			if itemData == nil or not IsPerfectRarity(itemData.Rarity) then
@@ -174,7 +207,15 @@ function InstallRGBTextHooks()
 			for itemIndex = 1, 5 do
 				local purchaseButton = screen.Components["PurchaseButton" .. tostring(itemIndex)]
 				local traitData = purchaseButton and purchaseButton.TraitData
-				if traitData and IsPerfectRarity(traitData.Rarity) then
+				if config.debug and traitData then
+					mod.RGBTextGenerator.AspectRarityLogged = mod.RGBTextGenerator.AspectRarityLogged or {}
+					local key = traitData.Name or ("Aspect_" .. tostring(itemIndex))
+					if not mod.RGBTextGenerator.AspectRarityLogged[key] then
+						mod.RGBTextGenerator.AspectRarityLogged[key] = true
+						rom.log.debug("[RGBTextGenerator] Aspect rarity: " .. tostring(key) .. " = " .. tostring(traitData.Rarity))
+					end
+				end
+				if traitData and IsPerfectAspectRarity(traitData) then
 					local rarityComponent = screen.Components["InfoBoxRarity" .. tostring(itemIndex)]
 					local textId = rarityComponent and rarityComponent.Id
 					local nameComponent = screen.Components["InfoBoxName" .. tostring(itemIndex)]
